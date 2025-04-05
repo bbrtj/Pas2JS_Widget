@@ -235,6 +235,8 @@ type
     FOnMouseWheel: TMouseWheelEvent;
     FOnResize: TNotifyEvent;
     FOnScroll: TNotifyEvent;
+    FHorizontalScale: Single;
+    FVerticalScale: Single;
     function GetClientHeight: NativeInt;
     function GetClientOrigin: TPoint;
     function GetClientRect: TRect;
@@ -355,7 +357,7 @@ type
     property Color: TColor read FColor write SetColor;
     property Enabled: boolean read FEnabled write SetEnabled;
     property Font: TFont read FFont write SetFont;
-    property HandleElement: TJSHTMLElement read FHandleElement;  
+    property HandleElement: TJSHTMLElement read FHandleElement;
     property HandleClass: string read FHandleClass write SetHandleClass;
     property HandleId: string read FHandleId write SetHandleId;
     property Parent: TWinControl read FParent write SetParent;
@@ -366,6 +368,8 @@ type
     property Visible: boolean read FVisible write SetVisible;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnResize: TNotifyEvent read FOnResize write FOnResize;
+    property HorizontalScale: Single read FHorizontalScale write FHorizontalScale;
+    property VerticalScale: Single read FVerticalScale write FVerticalScale;
   published
     property Cursor: TCursor read FCursor write SetCursor;
     property Left: NativeInt read FLeft write SetLeft;
@@ -578,7 +582,7 @@ begin
     Style.SetProperty('position', 'absolute');
     Style.SetProperty('top', '-9999');
     Style.SetProperty('overflow', 'scroll');
-    Style.SetProperty('-ms-overflow-style', 'scrollbar');  
+    Style.SetProperty('-ms-overflow-style', 'scrollbar');
   end;
   Document.Body.AppendChild(VDiv);
   Result := Round(VDiv.OffsetWidth - VDiv.ClientWidth);
@@ -1521,6 +1525,8 @@ end;
 procedure TControl.Changed;
 var
   form: TCustomForm;
+  hscale: Single;
+  vscale: Single;
 
   function AdjustWithPPI(aValue: Integer): Integer;
   begin
@@ -1569,10 +1575,10 @@ begin
       begin
         RemoveAttribute('class');
       end;
-                    
+
       /// Style
       if (FHandleClass = '') and (FHandleId = '') then
-      begin      
+      begin
         /// Font
         Style.SetProperty('color', JSColor(FFont.Color));
         UpdateHtmlElementFont(FHandleElement, FFont, False);
@@ -1588,10 +1594,29 @@ begin
       end;
 
       /// Bounds
-      Style.SetProperty('left', IntToStr(AdjustWithPPI(FLeft)) + 'px');
-      Style.SetProperty('top', IntToStr(AdjustWithPPI(FTop)) + 'px');
-      Style.SetProperty('width', IntToStr(AdjustWithPPI(FWidth)) + 'px');
-      Style.SetProperty('height', IntToStr(AdjustWithPPI(FHeight)) + 'px');
+      if (form <> nil) and form.ScalingDesign and (Parent <> nil) then
+      begin
+        hscale := 1;
+        vscale := 1;
+
+        if Parent = form then
+        begin
+          hscale := Parent.HorizontalScale;
+          vscale := Parent.VerticalScale;
+        end;
+
+        Style.SetProperty('left', FloatToStr(AdjustWithPPI(FLeft) / Parent.Width * 100 / hscale) + '%');
+        Style.SetProperty('top', FloatToStr(AdjustWithPPI(FTop) / Parent.Height * 100 / vscale) + '%');
+        Style.SetProperty('width', FloatToStr(AdjustWithPPI(FWidth) / Parent.Width * 100 / hscale) + '%');
+        Style.SetProperty('height', FloatToStr(AdjustWithPPI(FHeight) / Parent.Height * 100 / vscale) + '%');
+      end
+      else
+      begin
+        Style.SetProperty('left', IntToStr(AdjustWithPPI(FLeft)) + 'px');
+        Style.SetProperty('top', IntToStr(AdjustWithPPI(FTop)) + 'px');
+        Style.SetProperty('width', IntToStr(AdjustWithPPI(FWidth)) + 'px');
+        Style.SetProperty('height', IntToStr(AdjustWithPPI(FHeight)) + 'px');
+      end;
 
       /// Cursor
       Style.SetProperty('cursor', JSCursor(FCursor));
@@ -1599,12 +1624,12 @@ begin
       /// Enabled
       if (FEnabled) then
       begin
-        RemoveAttribute('disabled');    
+        RemoveAttribute('disabled');
         Style.RemoveProperty('opacity');
       end
       else
       begin
-        SetAttribute('disabled', 'true'); 
+        SetAttribute('disabled', 'true');
         Style.SetProperty('opacity','0.5');
       end;
 
@@ -2126,6 +2151,8 @@ begin
   FTop := 0;
   FUpdateCount := 0;
   FVisible := True;
+  FHorizontalScale := 1;
+  FVerticalScale := 1;
 end;
 
 destructor TControl.Destroy;
@@ -2551,8 +2578,8 @@ begin
   begin
     Exit;
   end;
-  try   
-    VTabOrder := VArray.IndexOf(AStartControl);  
+  try
+    VTabOrder := VArray.IndexOf(AStartControl);
     if (VTabOrder < 0) then
     begin
       if (ADirection in [fsdFirst]) then
@@ -2568,7 +2595,7 @@ begin
     case ADirection of
       fsdFirst:
       begin
-        VControl := TControl(VArray[0]);   
+        VControl := TControl(VArray[0]);
         if (Assigned(VControl)) and (VControl is TWinControl) and
            (VControl.Enabled) and (VControl.Visible) and (VControl.TabStop) then
         begin
@@ -2587,7 +2614,7 @@ begin
       fsdNext:
       begin
         if (VTabOrder < (VArray.Length-1)) then
-        begin    
+        begin
           for VIndex := (VTabOrder+1) to (VArray.Length - 1) do
           begin
             VControl := TControl(VArray[VIndex]);
@@ -2761,3 +2788,4 @@ end;
 initialization
   RegisterIntegerConsts(TypeInfo(TCursor), @IdentToCursor, @CursorToIdent);
 end.
+

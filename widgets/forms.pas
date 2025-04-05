@@ -60,7 +60,7 @@ type
     function CreateHandleElement: TJSHTMLElement; override;
   protected
     class function GetControlClassDefaultSize: TSize; override;
-  public           
+  public
     constructor Create(AOwner: TComponent); override;
     Procedure AfterConstruction; override;
     Procedure BeforeDestruction; override;
@@ -86,16 +86,16 @@ type
   { TCustomForm }
 
   TCustomForm = class(TCustomControl)
-  private          
-    FActiveControl: TWinControl; 
+  private
+    FActiveControl: TWinControl;
     FAlphaBlend: boolean;
     FAlphaBlendValue: byte;
     FChildForm: TCustomForm;
     FDesignTimePPI: Integer;
     FFormType: TFormType;
-    FKeyPreview: boolean;   
+    FKeyPreview: boolean;
     FModalResult: TModalResult;
-    FModalResultProc: TModalResultProc;   
+    FModalResultProc: TModalResultProc;
     FOverlay: TObject;
     FOnActivate: TNotifyEvent;
     FOnClose: TCloseEvent;
@@ -107,11 +107,13 @@ type
     FOnResize: TNotifyEvent;
     FOnScroll: TNotifyEvent;
     FOnShow: TNotifyEvent;
+    FScalingDesign: Boolean;
     procedure SetActiveControl(AValue: TWinControl);
     procedure SetAlphaBlend(AValue: boolean);
     procedure SetAlphaBlendValue(AValue: byte);
     procedure SetFormBorderStyle(AValue: TFormBorderStyle);
     procedure SetModalResult(AValue: TModalResult);
+    procedure SetScalingDesign(AValue: Boolean);
   protected
     property Overlay: TObject read FOverlay write FOverlay;
     property ChildForm: TCustomForm read FChildForm write FChildForm;
@@ -167,6 +169,7 @@ type
     property OnResize: TNotifyEvent read FOnResize write FOnResize;
     property OnScroll: TNotifyEvent read FOnScroll write FOnScroll;
     property OnShow: TNotifyEvent read FOnShow write FOnShow;
+    property ScalingDesign: Boolean read FScalingDesign write SetScalingDesign;
   end;
   TCustomFormClass = class of TCustomForm;
 
@@ -206,14 +209,14 @@ type
     procedure CreateForm(AInstanceClass: TControlClass; out AReference); virtual;
     procedure Initialize; virtual;
     procedure Run; virtual;
-    procedure Terminate; virtual;   
-    procedure UpdateMainForm(AForm: TCustomForm);  
+    procedure Terminate; virtual;
+    procedure UpdateMainForm(AForm: TCustomForm);
     procedure RegisterModule(AModule: TControl); virtual;
     procedure UnRegisterModule(AModule: TControl); virtual;
-  public      
-    property ActiveForm: TCustomForm read FActiveForm write FActiveForm;   
+  public
+    property ActiveForm: TCustomForm read FActiveForm write FActiveForm;
     property ApplicatioName: string read GetApplicatioName;
-    property ModuleCount: NativeInt read GetModuleCount;        
+    property ModuleCount: NativeInt read GetModuleCount;
     property ModuleIndex[const AModule: TControl]: NativeInt read GetModuleIndex;
     property Module[const AIndex: NativeInt]: TControl read GetModule;
     property MainForm: TCustomForm read FMainForm;
@@ -265,6 +268,7 @@ type
     property OnResize;
     property OnScroll;
     property OnShow;
+    property ScalingDesign;
   end;
   TWFormClass = class of TWForm;
 
@@ -357,7 +361,7 @@ type
   public
     constructor Create(const AForm: TCustomForm); reintroduce;
     destructor Destroy; override;
-  end;   
+  end;
 
 { TOverlay }
 
@@ -418,7 +422,7 @@ end;
 
 procedure TCustomDataModule.Changed;
 begin
-  inherited Changed;  
+  inherited Changed;
   if (not IsUpdating) and not (csLoading in ComponentState) then
   begin
     with HandleElement do
@@ -443,7 +447,7 @@ end;
 
 constructor TCustomDataModule.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);  
+  inherited Create(AOwner);
   BeginUpdate;
   try
     with GetControlClassDefaultSize do
@@ -464,8 +468,8 @@ begin
 end;
 
 procedure TCustomDataModule.BeforeDestruction;
-begin           
-  inherited BeforeDestruction;   
+begin
+  inherited BeforeDestruction;
   Application.UnRegisterModule(Self);
   //Destroying;
   DoDestroy;
@@ -580,6 +584,15 @@ begin
     begin
       Close;
     end;
+  end;
+end;
+
+procedure TCustomForm.SetScalingDesign(AValue: Boolean);
+begin
+  if (FScalingDesign <> AValue) then
+  begin
+    FScalingDesign := AValue;
+    Changed;
   end;
 end;
 
@@ -727,6 +740,7 @@ end;
 constructor TCustomForm.Create(AOwner: TComponent);
 begin
   CreateNew(AOwner, 1);
+  FScalingDesign := False;
   if (ClassType <> TWForm) and not (csDesigning in ComponentState) then begin
     ProcessResource;
   end;
@@ -762,7 +776,7 @@ begin
 end;
 
 destructor TCustomForm.Destroy;
-begin                   
+begin
   FActiveControl := nil;
   FChildForm := nil;
   inherited Destroy;
@@ -786,7 +800,7 @@ end;
 
 procedure TCustomForm.Close;
 var
-  VAction: TCloseAction;   
+  VAction: TCloseAction;
   VIndex: NativeInt;
   VOwnerForm: TCustomForm;
   VModule: TControl;
@@ -803,18 +817,18 @@ begin
       end
       else
       begin
-        Hide;  
+        Hide;
         if (FFormType = ftModalForm) then
         begin
           if (Assigned(Owner)) and (Owner is TCustomForm) then
-          begin    
+          begin
             VOwnerForm := TCustomForm(Owner);
             VOwnerForm.ChildForm := nil;
             if (Assigned(VOwnerForm.Overlay)) then
             begin
               VOwnerForm.Overlay.Destroy;
               VOwnerForm.Overlay := nil;
-            end; 
+            end;
             VOwnerForm.Show;
           end;
           /// Execute Modal Proc
@@ -885,11 +899,14 @@ var
 begin
   VWindowWidth := Window.InnerWidth;
   VWindowHeight := Window.InnerHeight;
+  VWidth := Width;
+  VHeight := Height;
+  HorizontalScale := HorizontalScale * VWidth / VWindowWidth;
+  VerticalScale := VerticalScale * VHeight / VWindowHeight;
+
   case FFormType of
     ftModalForm:
     begin
-      VWidth := Width;
-      VHeight := Height;
       VLeft := (VWindowWidth - VWidth) div 2;
       VTop := (VWindowHeight - VHeight) div 2;
       SetBounds(VLeft, VTop, VWidth, VHeight);
@@ -903,7 +920,7 @@ begin
 end;
 
 procedure TCustomForm.Show;
-begin          
+begin
   Application.ActiveForm := Self;
   Application.Title := Caption;
   BeginUpdate;
@@ -914,7 +931,7 @@ begin
     EndUpdate;
   end;
   BringToFront;
-  SetFocus;               
+  SetFocus;
   DoShow;
 end;
 
@@ -1212,3 +1229,4 @@ begin
 end;
 
 end.
+
