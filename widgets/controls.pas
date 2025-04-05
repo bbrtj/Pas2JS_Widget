@@ -1628,10 +1628,10 @@ begin
       /// Bounds
       if (form <> nil) and form.ScalingDesign and (Parent <> nil) then
       begin
-        Style.SetProperty('left', FloatToStr(AdjustWithPPI(FLeft) / AdjustWithPPI(Parent.Width) / Parent.HorizontalScale * 100) + '%');
-        Style.SetProperty('top', FloatToStr(AdjustWithPPI(FTop) / AdjustWithPPI(Parent.Height) / Parent.VerticalScale * 100) + '%');
-        Style.SetProperty('width', FloatToStr(AdjustWithPPI(FWidth) / AdjustWithPPI(Parent.Width) / Parent.HorizontalScale * 100) + '%');
-        Style.SetProperty('height', FloatToStr(AdjustWithPPI(FHeight) / AdjustWithPPI(Parent.Height) / Parent.VerticalScale * 100) + '%');
+        Style.SetProperty('left', FloatToStr(FLeft / Parent.Width / Parent.HorizontalScale * 100) + '%');
+        Style.SetProperty('top', FloatToStr(FTop / Parent.Height / Parent.VerticalScale * 100) + '%');
+        Style.SetProperty('width', FloatToStr(FWidth / Parent.Width / Parent.HorizontalScale * 100) + '%');
+        Style.SetProperty('height', FloatToStr(FHeight / Parent.Height / Parent.VerticalScale * 100) + '%');
       end
       else
       begin
