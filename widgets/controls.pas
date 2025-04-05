@@ -1605,6 +1605,16 @@ begin
         Style.SetProperty('top', IntToStr(AdjustWithPPI(FTop)) + 'px');
         Style.SetProperty('width', IntToStr(AdjustWithPPI(FWidth)) + 'px');
         Style.SetProperty('height', IntToStr(AdjustWithPPI(FHeight)) + 'px');
+
+        /// for scaling design, make sure the form will not be scaled below
+        /// original width / height. This ensures the form will remain
+        /// readable. This also effectively means the form can only scale up,
+        /// never down.
+        if (self is TCustomForm) and TCustomForm(self).ScalingDesign then
+        begin
+          Style.SetProperty('min-width', IntToStr(Trunc(AdjustWithPPI(FWidth) * TCustomForm(self).HorizontalScale)) + 'px');
+          Style.SetProperty('min-height', IntToStr(Trunc(AdjustWithPPI(FHeight) * TCustomForm(self).VerticalScale)) + 'px');
+        end;
       end;
 
       /// Cursor
