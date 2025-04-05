@@ -907,8 +907,6 @@ begin
   VWindowHeight := Window.InnerHeight;
   VWidth := Width;
   VHeight := Height;
-  HorizontalScale := HorizontalScale * VWidth / VWindowWidth;
-  VerticalScale := VerticalScale * VHeight / VWindowHeight;
 
   case FFormType of
     ftModalForm:
@@ -919,6 +917,8 @@ begin
     end;
     ftWindow:
     begin
+      FHorizontalScale := FHorizontalScale * VWidth / VWindowWidth;
+      FVerticalScale := FVerticalScale * VHeight / VWindowHeight;
       SetBounds(0, 0, VWindowWidth, VWindowHeight);
     end;
   end;
