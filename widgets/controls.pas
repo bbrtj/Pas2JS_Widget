@@ -341,6 +341,7 @@ type
     procedure ReAlign; virtual; /// Realign all children
     procedure BringToFront; virtual;
     procedure SendToBack; virtual;
+    procedure Repaint; virtual;
     procedure SetBounds(ALeft, ATop, AWidth, AHeight: NativeInt); virtual;
   public
     property Align: TAlign read FAlign write SetAlign;
@@ -404,6 +405,8 @@ type
     procedure UnRegisterHandleEvents; override;
     function CheckChildClassAllowed(AChildClass: TClass): boolean; override;
     function FindFocusControl(const AStartControl: TWinControl; ADirection: TFocusSearchDirection): TWinControl; virtual;
+  public
+    procedure Repaint; override;
   public
     function Focused: boolean; virtual;
     function CanSetFocus: boolean; virtual;
@@ -1223,6 +1226,7 @@ begin
       begin
         FShowHint := FParent.ShowHint;
       end;
+      Repaint;
     finally
       EndUpdate;
     end;
@@ -2259,6 +2263,12 @@ begin
   end;
 end;
 
+procedure TControl.Repaint;
+begin
+  { draws the control in JS }
+  Changed;
+end;
+
 procedure TControl.SetBounds(ALeft, ATop, AWidth, AHeight: NativeInt);
 begin
   { TODO: Constraint max min width and height }
@@ -2627,6 +2637,17 @@ begin
    end
   finally
     VArray.Length := 0;
+  end;
+end;
+
+procedure TWinControl.Repaint;
+var
+  I: NativeInt;
+begin
+  inherited Repaint;
+  for I := 0 to ControlCount - 1 do
+  begin
+    GetControl(I).Repaint;
   end;
 end;
 
