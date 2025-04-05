@@ -1525,10 +1525,8 @@ end;
 procedure TControl.Changed;
 var
   form: TCustomForm;
-  hscale: Single;
-  vscale: Single;
 
-  function AdjustWithPPI(aValue: Integer): Integer;
+  function AdjustWithPPI(aValue: Integer): Integer; overload;
   begin
     if Assigned(form) then
       Result := Trunc(96 * aValue / form.DesignTimePPI)
@@ -1596,19 +1594,10 @@ begin
       /// Bounds
       if (form <> nil) and form.ScalingDesign and (Parent <> nil) then
       begin
-        hscale := 1;
-        vscale := 1;
-
-        if Parent = form then
-        begin
-          hscale := Parent.HorizontalScale;
-          vscale := Parent.VerticalScale;
-        end;
-
-        Style.SetProperty('left', FloatToStr(AdjustWithPPI(FLeft) / Parent.Width * 100 / hscale) + '%');
-        Style.SetProperty('top', FloatToStr(AdjustWithPPI(FTop) / Parent.Height * 100 / vscale) + '%');
-        Style.SetProperty('width', FloatToStr(AdjustWithPPI(FWidth) / Parent.Width * 100 / hscale) + '%');
-        Style.SetProperty('height', FloatToStr(AdjustWithPPI(FHeight) / Parent.Height * 100 / vscale) + '%');
+        Style.SetProperty('left', FloatToStr(AdjustWithPPI(FLeft) / AdjustWithPPI(Parent.Width) / Parent.HorizontalScale * 100) + '%');
+        Style.SetProperty('top', FloatToStr(AdjustWithPPI(FTop) / AdjustWithPPI(Parent.Height) / Parent.VerticalScale * 100) + '%');
+        Style.SetProperty('width', FloatToStr(AdjustWithPPI(FWidth) / AdjustWithPPI(Parent.Width) / Parent.HorizontalScale * 100) + '%');
+        Style.SetProperty('height', FloatToStr(AdjustWithPPI(FHeight) / AdjustWithPPI(Parent.Height) / Parent.VerticalScale * 100) + '%');
       end
       else
       begin
