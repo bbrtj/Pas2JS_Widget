@@ -235,8 +235,6 @@ type
     FOnMouseWheel: TMouseWheelEvent;
     FOnResize: TNotifyEvent;
     FOnScroll: TNotifyEvent;
-    FHorizontalScale: Single;
-    FVerticalScale: Single;
     function GetClientHeight: NativeInt;
     function GetClientOrigin: TPoint;
     function GetClientRect: TRect;
@@ -368,8 +366,6 @@ type
     property Visible: boolean read FVisible write SetVisible;
     property OnClick: TNotifyEvent read FOnClick write FOnClick;
     property OnResize: TNotifyEvent read FOnResize write FOnResize;
-    property HorizontalScale: Single read FHorizontalScale write FHorizontalScale;
-    property VerticalScale: Single read FVerticalScale write FVerticalScale;
   published
     property Cursor: TCursor read FCursor write SetCursor;
     property Left: NativeInt read FLeft write SetLeft;
@@ -1594,10 +1590,10 @@ begin
       /// Bounds
       if (form <> nil) and form.ScalingDesign and (Parent <> nil) then
       begin
-        Style.SetProperty('left', FloatToStr(FLeft / Parent.Width / Parent.HorizontalScale * 100) + '%');
-        Style.SetProperty('top', FloatToStr(FTop / Parent.Height / Parent.VerticalScale * 100) + '%');
-        Style.SetProperty('width', FloatToStr(FWidth / Parent.Width / Parent.HorizontalScale * 100) + '%');
-        Style.SetProperty('height', FloatToStr(FHeight / Parent.Height / Parent.VerticalScale * 100) + '%');
+        Style.SetProperty('left', FloatToStr(FLeft / Parent.Width / form.HorizontalScale * 100) + '%');
+        Style.SetProperty('top', FloatToStr(FTop / Parent.Height / form.VerticalScale * 100) + '%');
+        Style.SetProperty('width', FloatToStr(FWidth / Parent.Width / form.HorizontalScale * 100) + '%');
+        Style.SetProperty('height', FloatToStr(FHeight / Parent.Height / form.VerticalScale * 100) + '%');
       end
       else
       begin
@@ -2140,8 +2136,6 @@ begin
   FTop := 0;
   FUpdateCount := 0;
   FVisible := True;
-  FHorizontalScale := 1;
-  FVerticalScale := 1;
 end;
 
 destructor TControl.Destroy;
