@@ -1607,8 +1607,12 @@ begin
       if (FHandleClass = '') and (FHandleId = '') then
       begin      
         /// Font
-        Style.SetProperty('color', JSColor(FFont.Color));
+        if FFont.Color in [clDefault, clNone] then
+          Style.RemoveProperty('color')
+        else
+          Style.SetProperty('color', JSColor(FFont.Color));
         UpdateHtmlElementFont(FHandleElement, FFont, False);
+
         /// Color
         if (FColor in [clDefault, clNone]) then
         begin
