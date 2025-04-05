@@ -108,6 +108,8 @@ type
     FOnScroll: TNotifyEvent;
     FOnShow: TNotifyEvent;
     FScalingDesign: Boolean;
+    FHorizontalScale: Single;
+    FVerticalScale: Single;
     procedure SetActiveControl(AValue: TWinControl);
     procedure SetAlphaBlend(AValue: boolean);
     procedure SetAlphaBlendValue(AValue: byte);
@@ -170,6 +172,8 @@ type
     property OnScroll: TNotifyEvent read FOnScroll write FOnScroll;
     property OnShow: TNotifyEvent read FOnShow write FOnShow;
     property ScalingDesign: Boolean read FScalingDesign write SetScalingDesign;
+    property HorizontalScale: Single read FHorizontalScale write FHorizontalScale;
+    property VerticalScale: Single read FVerticalScale write FVerticalScale;
   end;
   TCustomFormClass = class of TCustomForm;
 
@@ -736,7 +740,6 @@ end;
 constructor TCustomForm.Create(AOwner: TComponent);
 begin
   CreateNew(AOwner, 1);
-  FScalingDesign := False;
   if (ClassType <> TWForm) and not (csDesigning in ComponentState) then begin
     ProcessResource;
   end;
@@ -755,6 +758,9 @@ begin
   FModalResult := mrNone;
   FModalResultProc := nil;
   FOverlay := nil;
+  FScalingDesign := False;
+  FHorizontalScale := 1;
+  FVerticalScale := 1;
   BorderStyle := bsSizeable;
   BeginUpdate;
   try
