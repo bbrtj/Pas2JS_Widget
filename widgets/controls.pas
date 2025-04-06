@@ -1628,10 +1628,20 @@ begin
       /// Bounds
       if (form <> nil) and form.ScalingDesign and (Parent <> nil) then
       begin
-        Style.SetProperty('left', FloatToStr(FLeft / Parent.Width / form.HorizontalScale * 100) + '%');
-        Style.SetProperty('top', FloatToStr(FTop / Parent.Height / form.VerticalScale * 100) + '%');
-        Style.SetProperty('width', FloatToStr(FWidth / Parent.Width / form.HorizontalScale * 100) + '%');
-        Style.SetProperty('height', FloatToStr(FHeight / Parent.Height / form.VerticalScale * 100) + '%');
+        if Parent = form then
+        begin
+          Style.SetProperty('left', FloatToStr(FLeft / Parent.Width / form.HorizontalScale * 100) + '%');
+          Style.SetProperty('top', FloatToStr(FTop / Parent.Height / form.VerticalScale * 100) + '%');
+          Style.SetProperty('width', FloatToStr(FWidth / Parent.Width / form.HorizontalScale * 100) + '%');
+          Style.SetProperty('height', FloatToStr(FHeight / Parent.Height / form.VerticalScale * 100) + '%');
+        end
+        else
+        begin
+          Style.SetProperty('left', FloatToStr(FLeft / Parent.Width * 100) + '%');
+          Style.SetProperty('top', FloatToStr(FTop / Parent.Height * 100) + '%');
+          Style.SetProperty('width', FloatToStr(FWidth / Parent.Width * 100) + '%');
+          Style.SetProperty('height', FloatToStr(FHeight / Parent.Height * 100) + '%');
+        end;
       end
       else
       begin
