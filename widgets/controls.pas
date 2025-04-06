@@ -2314,6 +2314,7 @@ begin
     end;
     Changed;
     ReAlign;
+    DoResize;
   end;
 end;
 
