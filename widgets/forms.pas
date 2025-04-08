@@ -596,7 +596,7 @@ begin
   if (FScalingDesign <> AValue) then
   begin
     FScalingDesign := AValue;
-    Changed;
+    Repaint;
   end;
 end;
 
@@ -896,12 +896,11 @@ end;
 
 procedure TCustomForm.Resize;
 var
-  VHeight: NativeInt;
-  VLeft: NativeInt;
-  VTop: NativeInt;
-  VWidth: NativeInt;
-  VWindowHeight: NativeInt;
-  VWindowWidth: NativeInt;
+  VOwner: TCustomForm;
+  VLeft, VTop: NativeInt;
+  VWidth, VHeight: NativeInt;
+  VCalculatedSize: Single;
+  VWindowWidth, VWindowHeight: NativeInt;
 begin
   VWindowWidth := Window.InnerWidth;
   VWindowHeight := Window.InnerHeight;
@@ -911,6 +910,21 @@ begin
   case FFormType of
     ftModalForm:
     begin
+      VOwner := TCustomForm(Owner);
+      if FScalingDesign then
+      begin
+        VCalculatedSize := VWidth * FHorizontalScale / VOwner.HorizontalScale;
+        VWidth := Trunc(VCalculatedSize);
+        FHorizontalScale := VOwner.HorizontalScale * (VCalculatedSize / VWidth);
+        VCalculatedSize := VHeight * FVerticalScale / VOwner.VerticalScale;
+        VHeight := Trunc(VCalculatedSize);
+        FVerticalScale := VOwner.VerticalScale * (VCalculatedSize / VHeight);
+      end
+      else
+      begin
+        FHorizontalScale := VOwner.HorizontalScale;
+        FVerticalScale := VOwner.VerticalScale;
+      end;
       VLeft := (VWindowWidth - VWidth) div 2;
       VTop := (VWindowHeight - VHeight) div 2;
       SetBounds(VLeft, VTop, VWidth, VHeight);
