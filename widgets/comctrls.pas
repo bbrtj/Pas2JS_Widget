@@ -474,7 +474,7 @@ begin
     Style.SetProperty('border-top-right-radius', '2px');
     /// Color
     Style.SetProperty('background-color', '#dddada');
-    /// Font   
+    /// Font
     Style.SetProperty('color', JSColor(Font.Color));
     Style.SetProperty('font', JSFont(Font));
     /// Focus highlight
@@ -712,7 +712,7 @@ end;
 
 class function TCustomPageControl.GetControlClassDefaultSize: TSize;
 begin
-  Result.Cx := 200; 
+  Result.Cx := 200;
   Result.Cy := 200;
 end;
 
@@ -727,10 +727,6 @@ begin
   BeginUpdate;
   try
     TabStop := False;
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
   finally
     EndUpdate;
   end;
@@ -754,3 +750,4 @@ begin
 end;
 
 end.
+

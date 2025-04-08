@@ -552,7 +552,7 @@ procedure TCustomDataGrid.SetData(AValue: TJSArray);
 begin
   if (FData <> AValue) then
   begin
-    FData := AValue;  
+    FData := AValue;
     /// Create columns
     AutomaticallyCreateColumns;
     Changed;
@@ -1323,10 +1323,6 @@ begin
   try
     Color := clWhite;
     ParentColor := False;
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
   finally
     EndUpdate;
   end;
@@ -1562,13 +1558,10 @@ begin
   BeginUpdate;
   try
     TabStop := False;
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
   finally
     EndUpdate;
   end;
 end;
 
 end.
+
