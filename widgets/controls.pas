@@ -116,6 +116,22 @@ type
   TAnchorKind = (akTop, akLeft, akRight, akBottom);
   TAnchors = set of TAnchorKind;
 
+  TAnchorSideReference = (asrTop, asrBottom, asrCenter);
+  TAnchorSide = class(TPersistent)
+  private
+    FOwner: TControl;
+    FKind: TAnchorKind;
+    FControl: TControl;
+    FSide: TAnchorSideReference;
+  public
+    constructor Create(AOwner: TControl; AKind: TAnchorKind);
+    property Owner: TControl read FOwner;
+    property Kind: TAnchorKind read FKind;
+  published
+    property Control: TControl read FControl write FControl;
+    property Side: TAnchorSideReference read FSide write FSide default asrTop;
+  end;
+
   TBevelCut = (bvNone, bvLowered, bvRaised, bvSpace);
 
   TFormBorderStyle = (bsNone, bsSingle, bsSizeable, bsDialog, bsToolWindow, bsSizeToolWin);
@@ -197,6 +213,10 @@ type
   private
     FAlign: TAlign;
     FAnchors: TAnchors;
+    FAnchorSideLeft: TAnchorSide;
+    FAnchorSideTop: TAnchorSide;
+    FAnchorSideRight: TAnchorSide;
+    FAnchorSideBottom: TAnchorSide;
     FAutoSize: boolean;
     FBorderSpacing: TControlBorderSpacing;
     FBorderStyle: TBorderStyle;
@@ -373,6 +393,10 @@ type
     property Hint: string read FHint write SetHint;
     property Top: NativeInt read FTop write SetTop;
     property Width: NativeInt read FWidth write SetWidth;
+    property AnchorSideLeft: TAnchorSide read FAnchorSideLeft write FAnchorSideLeft;
+    property AnchorSideTop: TAnchorSide read FAnchorSideTop write FAnchorSideTop;
+    property AnchorSideBottom: TAnchorSide read FAnchorSideBottom write FAnchorSideBottom;
+    property AnchorSideRight: TAnchorSide read FAnchorSideRight write FAnchorSideRight;
   end;
 
   { TWinControl }
@@ -865,6 +889,15 @@ begin
     else
       Result := '';
   end;
+end;
+
+{ TAnchorSide }
+
+constructor TAnchorSide.Create(AOwner: TControl; AKind: TAnchorKind);
+begin
+  inherited Create();
+  FOwner := AOwner;
+  FKind := AKind;
 end;
 
 { TControlCanvas }
@@ -2110,6 +2143,10 @@ begin
   FFont.OnChange := @FontChanged;
   FAlign := alNone;
   FAnchors := [akLeft, akTop];
+  FAnchorSideLeft := TAnchorSide.Create(Self, akLeft);
+  FAnchorSideTop := TAnchorSide.Create(Self, akTop);
+  FAnchorSideRight := TAnchorSide.Create(Self, akRight);
+  FAnchorSideBottom := TAnchorSide.Create(Self, akBottom);
   FAutoSize := False;
   FCaption := '';
   FColor := clDefault;
