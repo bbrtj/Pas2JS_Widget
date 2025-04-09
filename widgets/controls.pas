@@ -1799,6 +1799,8 @@ var
   VWidth: NativeInt;
   newleft, newtop, newright, newbottom: NativeInt;
 begin
+  if csLoading in ComponentState then
+    Exit;
   if cfInAlignControls in FControlFlags then
     Exit;
   Include(FControlFlags, cfInAlignControls);
@@ -1946,9 +1948,9 @@ begin
           if akTop in VControl.Anchors then
             newtop := VControl.Top;
           if akBottom in VControl.Anchors then
-            newbottom := Height - (FDesignRect.Bottom - VControl.FDesignRect.Bottom);
+            newbottom := VControl.FDesignRect.Bottom;
           if akRight in VControl.Anchors then
-            newright := Width - (FDesignRect.Right - VControl.FDesignRect.Right);
+            newright := VControl.FDesignRect.Right;
 
           if [akLeft, akRight] <= VControl.Anchors then begin
             VControl.Left := newleft;
