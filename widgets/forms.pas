@@ -107,11 +107,13 @@ type
     FOnResize: TNotifyEvent;
     FOnScroll: TNotifyEvent;
     FOnShow: TNotifyEvent;
+    FScalingDesign: Boolean;
     procedure SetActiveControl(AValue: TWinControl);
     procedure SetAlphaBlend(AValue: boolean);
     procedure SetAlphaBlendValue(AValue: byte);
     procedure SetFormBorderStyle(AValue: TFormBorderStyle);
     procedure SetModalResult(AValue: TModalResult);
+    procedure SetScalingDesign(AValue: Boolean);
   protected
     property Overlay: TObject read FOverlay write FOverlay;
     property ChildForm: TCustomForm read FChildForm write FChildForm;
@@ -167,6 +169,7 @@ type
     property OnResize: TNotifyEvent read FOnResize write FOnResize;
     property OnScroll: TNotifyEvent read FOnScroll write FOnScroll;
     property OnShow: TNotifyEvent read FOnShow write FOnShow;
+    property ScalingDesign: Boolean read FScalingDesign write SetScalingDesign;
   end;
   TCustomFormClass = class of TCustomForm;
 
@@ -265,6 +268,7 @@ type
     property OnResize;
     property OnScroll;
     property OnShow;
+    property ScalingDesign;
   end;
   TWFormClass = class of TWForm;
 
@@ -444,6 +448,15 @@ end;
 constructor TCustomDataModule.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  BeginUpdate;
+  try
+    with GetControlClassDefaultSize do
+    begin
+      SetBounds(0, 0, Cx, Cy);
+    end;
+  finally
+    EndUpdate;
+  end;
 end;
 
 procedure TCustomDataModule.AfterConstruction;
@@ -567,6 +580,15 @@ begin
     begin
       Close;
     end;
+  end;
+end;
+
+procedure TCustomForm.SetScalingDesign(AValue: Boolean);
+begin
+  if (FScalingDesign <> AValue) then
+  begin
+    FScalingDesign := AValue;
+    Changed;
   end;
 end;
 
@@ -714,6 +736,7 @@ end;
 constructor TCustomForm.Create(AOwner: TComponent);
 begin
   CreateNew(AOwner, 1);
+  FScalingDesign := False;
   if (ClassType <> TWForm) and not (csDesigning in ComponentState) then begin
     ProcessResource;
   end;
@@ -867,11 +890,14 @@ var
 begin
   VWindowWidth := Window.InnerWidth;
   VWindowHeight := Window.InnerHeight;
+  VWidth := Width;
+  VHeight := Height;
+  HorizontalScale := HorizontalScale * VWidth / VWindowWidth;
+  VerticalScale := VerticalScale * VHeight / VWindowHeight;
+
   case FFormType of
     ftModalForm:
     begin
-      VWidth := Width;
-      VHeight := Height;
       VLeft := (VWindowWidth - VWidth) div 2;
       VTop := (VWindowHeight - VHeight) div 2;
       SetBounds(VLeft, VTop, VWidth, VHeight);
