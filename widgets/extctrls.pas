@@ -540,15 +540,6 @@ begin
   FStretchOutEnabled := True;
   FStretchInEnabled := True;
   FTransparent := False;
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 { TCustomPanel }
@@ -709,13 +700,10 @@ begin
   BeginUpdate;
   try
     TabStop := False;
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
   finally
     EndUpdate;
   end;
 end;
 
 end.
+

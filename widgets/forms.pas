@@ -60,7 +60,7 @@ type
     function CreateHandleElement: TJSHTMLElement; override;
   protected
     class function GetControlClassDefaultSize: TSize; override;
-  public           
+  public
     constructor Create(AOwner: TComponent); override;
     Procedure AfterConstruction; override;
     Procedure BeforeDestruction; override;
@@ -86,16 +86,16 @@ type
   { TCustomForm }
 
   TCustomForm = class(TCustomControl)
-  private          
-    FActiveControl: TWinControl; 
+  private
+    FActiveControl: TWinControl;
     FAlphaBlend: boolean;
     FAlphaBlendValue: byte;
     FChildForm: TCustomForm;
     FDesignTimePPI: Integer;
     FFormType: TFormType;
-    FKeyPreview: boolean;   
+    FKeyPreview: boolean;
     FModalResult: TModalResult;
-    FModalResultProc: TModalResultProc;   
+    FModalResultProc: TModalResultProc;
     FOverlay: TObject;
     FOnActivate: TNotifyEvent;
     FOnClose: TCloseEvent;
@@ -206,14 +206,14 @@ type
     procedure CreateForm(AInstanceClass: TControlClass; out AReference); virtual;
     procedure Initialize; virtual;
     procedure Run; virtual;
-    procedure Terminate; virtual;   
-    procedure UpdateMainForm(AForm: TCustomForm);  
+    procedure Terminate; virtual;
+    procedure UpdateMainForm(AForm: TCustomForm);
     procedure RegisterModule(AModule: TControl); virtual;
     procedure UnRegisterModule(AModule: TControl); virtual;
-  public      
-    property ActiveForm: TCustomForm read FActiveForm write FActiveForm;   
+  public
+    property ActiveForm: TCustomForm read FActiveForm write FActiveForm;
     property ApplicatioName: string read GetApplicatioName;
-    property ModuleCount: NativeInt read GetModuleCount;        
+    property ModuleCount: NativeInt read GetModuleCount;
     property ModuleIndex[const AModule: TControl]: NativeInt read GetModuleIndex;
     property Module[const AIndex: NativeInt]: TControl read GetModule;
     property MainForm: TCustomForm read FMainForm;
@@ -357,7 +357,7 @@ type
   public
     constructor Create(const AForm: TCustomForm); reintroduce;
     destructor Destroy; override;
-  end;   
+  end;
 
 { TOverlay }
 
@@ -418,7 +418,7 @@ end;
 
 procedure TCustomDataModule.Changed;
 begin
-  inherited Changed;  
+  inherited Changed;
   if (not IsUpdating) and not (csLoading in ComponentState) then
   begin
     with HandleElement do
@@ -443,16 +443,7 @@ end;
 
 constructor TCustomDataModule.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);  
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
+  inherited Create(AOwner);
 end;
 
 procedure TCustomDataModule.AfterConstruction;
@@ -464,8 +455,8 @@ begin
 end;
 
 procedure TCustomDataModule.BeforeDestruction;
-begin           
-  inherited BeforeDestruction;   
+begin
+  inherited BeforeDestruction;
   Application.UnRegisterModule(Self);
   //Destroying;
   DoDestroy;
@@ -510,10 +501,6 @@ begin
     try
       ParentFont := False;
       ParentShowHint := False;
-      with GetControlClassDefaultSize do
-      begin
-        SetBounds(0, 0, Cx, Cy);
-      end;
     finally
       EndUpdate;
     end;
@@ -751,17 +738,13 @@ begin
     ParentFont := False;
     ParentShowHint := False;
     Visible := False;
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
   finally
     EndUpdate;
   end;
 end;
 
 destructor TCustomForm.Destroy;
-begin                   
+begin
   FActiveControl := nil;
   FChildForm := nil;
   inherited Destroy;
@@ -785,7 +768,7 @@ end;
 
 procedure TCustomForm.Close;
 var
-  VAction: TCloseAction;   
+  VAction: TCloseAction;
   VIndex: NativeInt;
   VOwnerForm: TCustomForm;
   VModule: TControl;
@@ -802,18 +785,18 @@ begin
       end
       else
       begin
-        Hide;  
+        Hide;
         if (FFormType = ftModalForm) then
         begin
           if (Assigned(Owner)) and (Owner is TCustomForm) then
-          begin    
+          begin
             VOwnerForm := TCustomForm(Owner);
             VOwnerForm.ChildForm := nil;
             if (Assigned(VOwnerForm.Overlay)) then
             begin
               VOwnerForm.Overlay.Destroy;
               VOwnerForm.Overlay := nil;
-            end; 
+            end;
             VOwnerForm.Show;
           end;
           /// Execute Modal Proc
@@ -902,7 +885,7 @@ begin
 end;
 
 procedure TCustomForm.Show;
-begin          
+begin
   Application.ActiveForm := Self;
   Application.Title := Caption;
   BeginUpdate;
@@ -913,7 +896,7 @@ begin
     EndUpdate;
   end;
   BringToFront;
-  SetFocus;               
+  SetFocus;
   DoShow;
 end;
 
@@ -1211,3 +1194,4 @@ begin
 end;
 
 end.
+

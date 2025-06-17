@@ -375,7 +375,7 @@ type
     property Color: TColor read FColor write SetColor;
     property Enabled: boolean read FEnabled write SetEnabled;
     property Font: TFont read FFont write SetFont;
-    property HandleElement: TJSHTMLElement read FHandleElement;  
+    property HandleElement: TJSHTMLElement read FHandleElement;
     property HandleClass: string read FHandleClass write SetHandleClass;
     property HandleId: string read FHandleId write SetHandleId;
     property Parent: TWinControl read FParent write SetParent;
@@ -602,7 +602,7 @@ begin
     Style.SetProperty('position', 'absolute');
     Style.SetProperty('top', '-9999');
     Style.SetProperty('overflow', 'scroll');
-    Style.SetProperty('-ms-overflow-style', 'scrollbar');  
+    Style.SetProperty('-ms-overflow-style', 'scrollbar');
   end;
   Document.Body.AppendChild(VDiv);
   Result := Round(VDiv.OffsetWidth - VDiv.ClientWidth);
@@ -1633,12 +1633,12 @@ begin
       /// Enabled
       if (FEnabled) then
       begin
-        RemoveAttribute('disabled');    
+        RemoveAttribute('disabled');
         Style.RemoveProperty('opacity');
       end
       else
       begin
-        SetAttribute('disabled', 'true'); 
+        SetAttribute('disabled', 'true');
         Style.SetProperty('opacity','0.5');
       end;
 
@@ -1804,24 +1804,6 @@ begin
 end;
 
 procedure TControl.AlignControls;
-
-  function AnchorsToStr(const aAnchors: TAnchors): String;
-  const
-    AnchorStr: array[TAnchorKind] of String = (
-      'Top', 'Left', 'Right', 'Bottom'
-    );
-  var
-    anchor: TAnchorKind;
-  begin
-    Result := '';
-    for anchor := Low(TAnchorKind) to High(TAnchorKind) do
-      if anchor in aAnchors then begin
-        if Result <> '' then
-          Result := Result + ', ';
-        Result := Result + AnchorStr[anchor];
-      end;
-  end;
-
 var
   VControl: TControl;
   VSpacing: TControlBorderSpacing;
@@ -2154,6 +2136,8 @@ begin
   FCursor := crDefault;
   sz := GetControlClassDefaultSize;
   FDesignRect := Rect(0, 0, sz.cx - 1, sz.cy - 1);
+  FWidth := sz.cx;
+  FHeight := sz.cy;
   FEnabled := True;
   FLeft := 0;
   FParent := nil;
@@ -2591,8 +2575,8 @@ begin
   begin
     Exit;
   end;
-  try   
-    VTabOrder := VArray.IndexOf(AStartControl);  
+  try
+    VTabOrder := VArray.IndexOf(AStartControl);
     if (VTabOrder < 0) then
     begin
       if (ADirection in [fsdFirst]) then
@@ -2608,7 +2592,7 @@ begin
     case ADirection of
       fsdFirst:
       begin
-        VControl := TControl(VArray[0]);   
+        VControl := TControl(VArray[0]);
         if (Assigned(VControl)) and (VControl is TWinControl) and
            (VControl.Enabled) and (VControl.Visible) and (VControl.TabStop) then
         begin
@@ -2627,7 +2611,7 @@ begin
       fsdNext:
       begin
         if (VTabOrder < (VArray.Length-1)) then
-        begin    
+        begin
           for VIndex := (VTabOrder+1) to (VArray.Length - 1) do
           begin
             VControl := TControl(VArray[VIndex]);
@@ -2801,3 +2785,4 @@ end;
 initialization
   RegisterIntegerConsts(TypeInfo(TCursor), @IdentToCursor, @CursorToIdent);
 end.
+

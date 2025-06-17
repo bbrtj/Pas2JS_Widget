@@ -81,7 +81,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure AddItem(const AItem: string; AObject: TObject); virtual;   
+    procedure AddItem(const AItem: string; AObject: TObject); virtual;
     procedure Append(const AItem: string);
     procedure Clear; virtual;
     property DropDownCount: integer read FDropDownCount write SetDropDownCount;
@@ -696,15 +696,6 @@ begin
   FItems := TStringList.Create;
   TStringList(FItems).OnChange := ItemsChange;
   FSorted := False;
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 destructor TCustomComboBox.Destroy;
@@ -943,14 +934,6 @@ begin
   TStringList(FItems).OnChange := @ItemsChanged;
   FMultiSelect := False;
   FSorted := False;
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 destructor TCustomListBox.Destroy;
@@ -1348,15 +1331,6 @@ begin
   FReadOnly := False;
   FTextHint := '';
   FText := '';
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 procedure TCustomEdit.Clear;
@@ -1768,15 +1742,6 @@ begin
   FWantReturns := True;
   FWantTabs := False;
   FWordWrap := True;
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 destructor TCustomMemo.Destroy;
@@ -1870,15 +1835,6 @@ constructor TCustomButton.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FModalResult := mrNone;
-  BeginUpdate;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 procedure TCustomButton.AdjustSize;
@@ -2036,14 +1992,6 @@ begin
   FLabelElement := CreateLabelElement;
   FAlignment := taRightJustify;
   FState := cbUnchecked;
-  try
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
-  finally
-    EndUpdate;
-  end;
 end;
 
 { TCustomLabel }
@@ -2208,10 +2156,6 @@ begin
   try
     TabStop := False;
     AutoSize := True;
-    with GetControlClassDefaultSize do
-    begin
-      SetBounds(0, 0, Cx, Cy);
-    end;
   finally
     EndUpdate;
   end;
@@ -2224,3 +2168,4 @@ begin
 end;
 
 end.
+
