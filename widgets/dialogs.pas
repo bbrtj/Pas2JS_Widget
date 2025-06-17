@@ -55,10 +55,10 @@ procedure MessageDlg(AOwner: TCustomForm; const ACaption, AMessage: string; ADlg
 procedure MessageDlg(AOwner: TCustomForm; const AMessage: string; ADlgType: TMsgDlgType; AButtons: TMsgDlgButtons; AModalResultProc: TModalResultProc); overload;
 
 procedure ShowMessage(AOwner: TCustomForm; const AMessage: string); overload;
-procedure ShowMessage(const AMessage: string); overload;   
-procedure ShowMessageFmt(const AMessage: string; const AArguments: array of {$if PAS2JS_FULLVERSION > 20101}const{$else}JSValue{$endif}); overload;
+procedure ShowMessage(const AMessage: string); overload;
+procedure ShowMessageFmt(const AMessage: string; const AArguments: array of {$if PAS2JS_FULLVERSION < 20101}JSValue{$else}const{$endif}); overload;
 
-procedure QuestionDlg(const ACaption, AMessage: string; AModalResultProc: TModalResultProc); overload;   
+procedure QuestionDlg(const ACaption, AMessage: string; AModalResultProc: TModalResultProc); overload;
 procedure QuestionDlg(const AMessage: string; AModalResultProc: TModalResultProc); overload;
 
 implementation
@@ -502,7 +502,7 @@ begin
   MessageDlg(Application.ActiveForm, '', AMessage, mtInformation, [mbOK], nil);
 end;
 
-procedure ShowMessageFmt(const AMessage: string; const AArguments: array of {$if PAS2JS_FULLVERSION > 20101}const{$else}JSValue{$endif});
+procedure ShowMessageFmt(const AMessage: string; const AArguments: array of {$if PAS2JS_FULLVERSION < 20101}JSValue{$else}const{$endif});
 begin
   ShowMessage(Format(AMessage, AArguments));
 end;
@@ -519,3 +519,4 @@ end;
 
 
 end.
+
