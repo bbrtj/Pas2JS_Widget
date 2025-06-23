@@ -1612,7 +1612,21 @@ begin
   VOldText := RealGetText;
   if (VNewText <> VOldText) then
   begin
-    FLines.Text := VNewText;
+    try
+      FLines.BeginUpdate;
+      FLines.Text := VNewText;
+
+      // Saving to FLines.Text either ignores last newline (with
+      // SkipLastLineBreak) or always adds it (without it). This makes an empty
+      // line either always appear at the end of the memo, or makes it impossible
+      // to add trailing newlines to the memo. This condition fixes that (must be
+      // used with SkipLastLineBreak := True)
+      if (Length(VNewText) >= 1) and (VNewText[Length(VNewText)] = LineEnding) then
+        FLines.Add('');
+    finally
+      FLines.EndUpdate;
+    end;
+
     FModified := True;
     Change;
   end;
@@ -1734,6 +1748,7 @@ constructor TCustomMemo.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FLines := TCustomMemoStrings.Create;
+  FLines.SkipLastLineBreak := True;
   TCustomMemoStrings(FLines).OnChange := HandleLinesChange;
   FMaxLength := 0;
   FModified := False;
