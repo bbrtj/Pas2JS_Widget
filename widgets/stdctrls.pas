@@ -2156,7 +2156,7 @@ begin
       /// Specifies how overflowed content
       Style.SetProperty('text-overflow', 'ellipsis');
       /// Caption
-      InnerHTML := Self.Caption;
+      AppendChild(Document.CreateTextNode(Self.Caption));
     end;
   end;
 end;
