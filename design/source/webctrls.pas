@@ -463,7 +463,7 @@ type
 
   { TWLabel }
 
-  TLabelElement = (leLabel, leParagraph, lePre);
+  TLabelElement = (leLabel, leParagraph);
 
   TWLabel = class(TCustomLabel)
   private

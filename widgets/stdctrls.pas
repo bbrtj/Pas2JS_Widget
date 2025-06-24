@@ -377,7 +377,7 @@ type
 
   { TCustomLabel }
 
-  TLabelElement = (leLabel, leParagraph, lePre);
+  TLabelElement = (leLabel, leParagraph);
 
   TCustomLabel = class(TWinControl)
   private
@@ -2134,9 +2134,7 @@ begin
       /// Clear
       InnerHTML := '';
       /// Layout
-      Style.SetProperty('display', 'inline-block');
-      Style.SetProperty('width', '100%');
-      Style.SetProperty('height', '100%');
+      Style.SetProperty('display', 'table-cell');
       case FLayout of
         tlBottom: Style.SetProperty('vertical-align', 'bottom');
         tlCenter: Style.SetProperty('vertical-align', 'middle');
@@ -2151,6 +2149,8 @@ begin
       begin
         Style.removeProperty('word-wrap');
       end;
+      /// Allow for whitespace
+      Style.SetProperty('white-space', 'pre');
       /// Scroll
       Style.SetProperty('overflow', 'hidden');
       /// Specifies how overflowed content
@@ -2173,7 +2173,6 @@ begin
   case FLabelElement of
     leLabel: Element := 'label';
     leParagraph: Element := 'p';
-    lePre: Element := 'pre';
   end;
 
   Result := TJSHTMLTableElement(HandleElement.AppendChild(Document.CreateElement(Element)));
