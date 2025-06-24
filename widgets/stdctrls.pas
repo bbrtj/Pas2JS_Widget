@@ -377,6 +377,8 @@ type
 
   { TCustomLabel }
 
+  TLabelElement = (leLabel, leParagraph, lePre);
+
   TCustomLabel = class(TWinControl)
   private
     FAlignment: TAlignment;
@@ -385,10 +387,12 @@ type
     FLayout: TTextLayout;
     FTransparent: boolean;
     FWordWrap: boolean;
+    FLabelElement: TLabelElement;
     procedure SetAlignment(AValue: TAlignment);
     procedure SetLayout(AValue: TTextLayout);
     procedure SetTransparent(AValue: boolean);
     procedure SetWordWrap(AValue: boolean);
+    procedure SetLabelElement(AValue: TLabelElement);
   protected
     procedure DoEnter; override;
   protected
@@ -398,6 +402,7 @@ type
     property Layout: TTextLayout read FLayout write SetLayout;
     property Transparent: boolean read FTransparent write SetTransparent;
     property WordWrap: boolean read FWordWrap write SetWordWrap;
+    property LabelElement: TLabelElement read FLabelElement write SetLabelElement;
   protected
     procedure Changed; override;
     function CreateHandleElement: TJSHTMLElement; override;
@@ -2060,6 +2065,18 @@ begin
   end;
 end;
 
+procedure TCustomLabel.SetLabelElement(AValue: TLabelElement);
+begin
+  if (FLabelElement <> AValue) then
+  begin
+    FLabelElement := AValue;
+    if FContentElement <> nil then
+      HandleElement.RemoveChild(FContentElement);
+    FContentElement := CreateContentElement;
+    Changed;
+  end;
+end;
+
 procedure TCustomLabel.DoEnter;
 begin
   inherited DoEnter;
@@ -2083,12 +2100,24 @@ begin
       end;
       /// Focus highlight
       Style.SetProperty('outline', 'none');
-      /// Prevent text selection
-      Style.SetProperty('user-select', 'none');
-      Style.SetProperty('-moz-user-select', 'none');
-      Style.SetProperty('-ms-user-select', 'none');
-      Style.SetProperty('-khtml-user-select', 'none');
-      Style.SetProperty('-webkit-user-select', 'none');
+
+      if FLabelElement = leLabel then begin
+        /// Prevent text selection
+        Style.SetProperty('user-select', 'none');
+        Style.SetProperty('-moz-user-select', 'none');
+        Style.SetProperty('-ms-user-select', 'none');
+        Style.SetProperty('-khtml-user-select', 'none');
+        Style.SetProperty('-webkit-user-select', 'none');
+      end
+      else begin
+        /// Reset text selection
+        Style.SetProperty('user-select', 'text');
+        Style.SetProperty('-moz-user-select', 'text');
+        Style.SetProperty('-ms-user-select', 'text');
+        Style.SetProperty('-khtml-user-select', 'text');
+        Style.SetProperty('-webkit-user-select', 'text');
+      end;
+
       if AutoSize then begin
         Style.removeProperty('height');
         Style.removeProperty('width');
@@ -2105,9 +2134,9 @@ begin
       /// Clear
       InnerHTML := '';
       /// Layout
-      Style.SetProperty('display', 'table-cell');
-      Style.SetProperty('width', IntToStr(Self.Width) + 'px');
-      Style.SetProperty('height', IntToStr(Self.Height) + 'px');
+      Style.SetProperty('display', 'inline-block');
+      Style.SetProperty('width', '100%');
+      Style.SetProperty('height', '100%');
       case FLayout of
         tlBottom: Style.SetProperty('vertical-align', 'bottom');
         tlCenter: Style.SetProperty('vertical-align', 'middle');
@@ -2138,8 +2167,16 @@ begin
 end;
 
 function TCustomLabel.CreateContentElement: TJSHTMLTableElement;
+var
+  Element: String;
 begin
-  Result := TJSHTMLTableElement(HandleElement.AppendChild(Document.CreateElement('label')));
+  case FLabelElement of
+    leLabel: Element := 'label';
+    leParagraph: Element := 'p';
+    lePre: Element := 'pre';
+  end;
+
+  Result := TJSHTMLTableElement(HandleElement.AppendChild(Document.CreateElement(Element)));
 end;
 
 {$push}
@@ -2163,6 +2200,7 @@ begin
   inherited Create(AOwner);
   FContentElement := CreateContentElement;
   FAlignment := taLeftJustify;
+  FLabelElement := leLabel;
   FFocusControl := nil;
   FLayout := tlTop;
   FTransparent := True;

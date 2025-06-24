@@ -58,7 +58,7 @@ type
   published
     /// Fake
     property HorizontalOffset: LongInt read FHorizontalOffset write FHorizontalOffset;
-    property VerticalOffset: LongInt read FVerticalOffset write FVerticalOffset;   
+    property VerticalOffset: LongInt read FVerticalOffset write FVerticalOffset;
     property PPI: LongInt read FPPI write FPPI;
   end;
   TWDataModuleClass = class of TWDataModule;
@@ -202,7 +202,7 @@ type
     property CharCase;
     property Color;
     property Enabled;
-    property Font; 
+    property Font;
     property HandleClass;
     property HandleId;
     property Lines;
@@ -249,7 +249,7 @@ type
     property Enabled;
     property Font;
     property HandleClass;
-    property HandleId; 
+    property HandleId;
     property Hint;
     property ModalResult;
     property ParentFont;
@@ -287,7 +287,7 @@ type
     property Checked;
     property Color;
     property Enabled;
-    property Font; 
+    property Font;
     property HandleClass;
     property HandleId;
     property ParentColor;
@@ -384,6 +384,7 @@ type
     property OnMouseUp;
     property OnMouseWheel;
     property OnResize;
+    property LabelElement;
   end;
 
   { TWImage }
@@ -395,7 +396,7 @@ type
     property AutoSize;
     property BorderSpacing;
     property Center;
-    property Enabled;   
+    property Enabled;
     property HandleClass;
     property HandleId;
     property ParentShowHint;
@@ -438,7 +439,7 @@ type
     property ClientWidth;
     property Color;
     property Enabled;
-    property Font; 
+    property Font;
     property HandleClass;
     property HandleId;
     property ParentColor;
@@ -475,7 +476,7 @@ type
   end;
 
   { TWWebSocketClient }
-  
+
   TWWebSocketClient = class(TCustomWebSocketClient)
   published
     property Url;
@@ -537,7 +538,7 @@ type
     property Color;
     property DecimalPlaces;
     property Enabled;
-    property Font;  
+    property Font;
     property HandleClass;
     property HandleId;
     property ParentColor;
@@ -588,7 +589,7 @@ type
     property BorderStyle;
     property Color;
     property Enabled;
-    property Font;  
+    property Font;
     property HandleClass;
     property HandleId;
     property ParentColor;
@@ -638,7 +639,7 @@ type
     property BorderStyle;
     property Color;
     property Enabled;
-    property Font;  
+    property Font;
     property HandleClass;
     property HandleId;
     property ParentColor;
@@ -732,7 +733,7 @@ type
     property Color;
     property Enabled;
     property Filter;
-    property Font;   
+    property Font;
     property HandleClass;
     property HandleId;
     //property ModalResult;
@@ -741,7 +742,7 @@ type
     property ShowHint;
     property TabOrder;
     property TabStop;
-    property Visible; 
+    property Visible;
     property OnChange;
     property OnClick;
     property OnEnter;
@@ -805,7 +806,7 @@ type
     property BorderSpacing;
     property CurrentPage;
     property Enabled;
-    property Font;   
+    property Font;
     property HandleClass;
     property HandleId;
     property ParentFont;
@@ -867,7 +868,7 @@ end;
 
 constructor TWIntegerEdit.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);  
+  inherited Create(AOwner);
   BeginUpdate;
   try
     DecimalPlaces := 0;
@@ -921,3 +922,4 @@ begin
 end;
 
 end.
+

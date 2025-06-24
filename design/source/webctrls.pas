@@ -463,10 +463,13 @@ type
 
   { TWLabel }
 
+  TLabelElement = (leLabel, leParagraph, lePre);
+
   TWLabel = class(TCustomLabel)
   private
     FHandleClass: string;
     FHandleId: string;
+    FLabelElement: TLabelElement;
   published
     property Align;
     property Alignment;
@@ -497,6 +500,7 @@ type
     property OnMouseUp;
     property OnMouseWheel;
     property OnResize;
+    property LabelElement: TLabelElement read FLabelElement write FLabelElement default leLabel;
   end;
 
   { TWImage }
