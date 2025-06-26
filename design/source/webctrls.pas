@@ -470,6 +470,7 @@ type
     FHandleClass: string;
     FHandleId: string;
     FLabelElement: TLabelElement;
+    FTextSelection: Boolean;
   published
     property Align;
     property Alignment;
@@ -501,6 +502,7 @@ type
     property OnMouseWheel;
     property OnResize;
     property LabelElement: TLabelElement read FLabelElement write FLabelElement default leLabel;
+    property TextSelection: Boolean read FTextSelection write FTextSelection default False;
   end;
 
   { TWImage }

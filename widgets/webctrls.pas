@@ -385,6 +385,7 @@ type
     property OnMouseWheel;
     property OnResize;
     property LabelElement;
+    property TextSelection;
   end;
 
   { TWImage }

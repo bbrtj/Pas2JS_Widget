@@ -388,21 +388,23 @@ type
     FTransparent: boolean;
     FWordWrap: boolean;
     FLabelElement: TLabelElement;
+    FTextSelection: Boolean;
     procedure SetAlignment(AValue: TAlignment);
     procedure SetLayout(AValue: TTextLayout);
     procedure SetTransparent(AValue: boolean);
     procedure SetWordWrap(AValue: boolean);
     procedure SetLabelElement(AValue: TLabelElement);
+    procedure SetTextSelection(AValue: Boolean);
   protected
     procedure DoEnter; override;
   protected
-    property ContentElement: TJSHTMLTableElement read FContentElement;
     property Alignment: TAlignment read FAlignment write SetAlignment;
     property FocusControl: TWinControl read FFocusControl write FFocusControl;
     property Layout: TTextLayout read FLayout write SetLayout;
     property Transparent: boolean read FTransparent write SetTransparent;
     property WordWrap: boolean read FWordWrap write SetWordWrap;
     property LabelElement: TLabelElement read FLabelElement write SetLabelElement;
+    property TextSelection: Boolean read FTextSelection write SetTextSelection;
   protected
     procedure Changed; override;
     function CreateHandleElement: TJSHTMLElement; override;
@@ -414,6 +416,7 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure AdjustSize; override;
     property AutoSize default True;
+    property ContentElement: TJSHTMLTableElement read FContentElement;
   end;
 
 procedure ApplyScrollStyleToStyle(aStyle: TJSCSSStyleDeclaration; aScrollStyle: TScrollStyle);
@@ -2077,6 +2080,15 @@ begin
   end;
 end;
 
+procedure TCustomLabel.SetTextSelection(AValue: Boolean);
+begin
+  if (FTextSelection <> AValue) then
+  begin
+    FTextSelection := AValue;
+    Changed;
+  end;
+end;
+
 procedure TCustomLabel.DoEnter;
 begin
   inherited DoEnter;
@@ -2101,21 +2113,21 @@ begin
       /// Focus highlight
       Style.SetProperty('outline', 'none');
 
-      if FLabelElement = leLabel then begin
-        /// Prevent text selection
-        Style.SetProperty('user-select', 'none');
-        Style.SetProperty('-moz-user-select', 'none');
-        Style.SetProperty('-ms-user-select', 'none');
-        Style.SetProperty('-khtml-user-select', 'none');
-        Style.SetProperty('-webkit-user-select', 'none');
-      end
-      else begin
+      if FTextSelection then begin
         /// Reset text selection
         Style.SetProperty('user-select', 'text');
         Style.SetProperty('-moz-user-select', 'text');
         Style.SetProperty('-ms-user-select', 'text');
         Style.SetProperty('-khtml-user-select', 'text');
         Style.SetProperty('-webkit-user-select', 'text');
+      end
+      else begin
+        /// Prevent text selection
+        Style.SetProperty('user-select', 'none');
+        Style.SetProperty('-moz-user-select', 'none');
+        Style.SetProperty('-ms-user-select', 'none');
+        Style.SetProperty('-khtml-user-select', 'none');
+        Style.SetProperty('-webkit-user-select', 'none');
       end;
 
       if AutoSize then begin
