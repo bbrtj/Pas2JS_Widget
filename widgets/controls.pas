@@ -255,6 +255,7 @@ type
     FOnMouseWheel: TMouseWheelEvent;
     FOnResize: TNotifyEvent;
     FOnScroll: TNotifyEvent;
+    FJSEvent: TJSEvent;
     function GetClientHeight: NativeInt;
     function GetClientOrigin: TPoint;
     function GetClientRect: TRect;
@@ -300,7 +301,7 @@ type
     procedure MouseLeave; virtual;
     procedure MouseMove(Shift: TShiftState; X, Y: integer); virtual;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: integer); virtual;
-    procedure MouseWeel(Shift: TShiftState; WheelDelta: NativeInt; MousePos: TPoint; var Handled: boolean);
+    procedure MouseWheel(Shift: TShiftState; WheelDelta: NativeInt; MousePos: TPoint; var Handled: boolean);
   protected
     property BorderStyle: TBorderStyle read FBorderStyle write SetBorderStyle;
     property TabOrder: NativeInt read FTabOrder write SetTabOrder;
@@ -314,6 +315,7 @@ type
     property OnMouseUp: TMouseEvent read FOnMouseUp write FOnMouseUp;
     property OnMouseWheel: TMouseWheelEvent read FOnMouseWheel write FOnMouseWheel;
     property OnScroll: TNotifyEvent read FOnScroll write FOnScroll;
+    property JSEvent: TJSEvent read FJSEvent write FJSEvent;
   protected
     function HandleClick(AEvent: TJSMouseEvent): boolean; virtual;
     function HandleDblClick(AEvent: TJSMouseEvent): boolean; virtual;
@@ -1364,6 +1366,7 @@ begin
   if (Assigned(FOnClick)) then
   begin
     FOnClick(Self);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
@@ -1372,6 +1375,7 @@ begin
   if (Assigned(FOnDblClick)) then
   begin
     FOnDblClick(Self);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
@@ -1396,6 +1400,7 @@ begin
   if (Assigned(FOnMouseDown)) then
   begin
     FOnMouseDown(Self, Button, Shift, X, Y);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
@@ -1404,6 +1409,7 @@ begin
   if (Assigned(FOnMouseEnter)) then
   begin
     FOnMouseEnter(Self);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
@@ -1412,6 +1418,7 @@ begin
   if (Assigned(FOnMouseLeave)) then
   begin
     FOnMouseLeave(Self);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
@@ -1420,6 +1427,7 @@ begin
   if (Assigned(FOnMouseMove)) then
   begin
     FOnMouseMove(Self, Shift, X, Y);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
@@ -1428,29 +1436,39 @@ begin
   if (Assigned(FOnMouseUp)) then
   begin
     FOnMouseUp(Self, Button, Shift, X, Y);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
-procedure TControl.MouseWeel(Shift: TShiftState; WheelDelta: NativeInt; MousePos: TPoint; var Handled: boolean);
+procedure TControl.MouseWheel(Shift: TShiftState; WheelDelta: NativeInt; MousePos: TPoint; var Handled: boolean);
 begin
   if (Assigned(FOnMouseWheel)) then
   begin
     FOnMouseWheel(Self, Shift, WheelDelta, MousePos, Handled);
+    if FJSEvent <> nil then FJSEvent.StopPropagation();
   end;
 end;
 
 function TControl.HandleClick(AEvent: TJSMouseEvent): boolean;
 begin
-  AEvent.StopPropagation;
-  Click();
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    Click();
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleDblClick(AEvent: TJSMouseEvent): boolean;
 begin
-  AEvent.StopPropagation;
-  DblClick();
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    DblClick();
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleMouseDown(AEvent: TJSMouseEvent): boolean;
@@ -1460,28 +1478,40 @@ var
   VShift: TShiftState;
   X, Y: NativeInt;
 begin
-  VButton := ExtractMouseButton(AEvent);
-  VOffSets := OffSets(FHandleElement);
-  VShift := ExtractShiftState(AEvent);
-  X := Trunc(AEvent.ClientX - VOffSets.Left);
-  Y := Trunc(AEvent.ClientY - VOffSets.Top);
-  AEvent.StopPropagation;
-  MouseDown(VButton, VShift, X, Y);
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    VButton := ExtractMouseButton(AEvent);
+    VOffSets := OffSets(FHandleElement);
+    VShift := ExtractShiftState(AEvent);
+    X := Trunc(AEvent.ClientX - VOffSets.Left);
+    Y := Trunc(AEvent.ClientY - VOffSets.Top);
+    MouseDown(VButton, VShift, X, Y);
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleMouseEnter(AEvent: TJSMouseEvent): boolean;
 begin
-  AEvent.StopPropagation;
-  MouseEnter();
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    MouseEnter();
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleMouseLeave(AEvent: TJSMouseEvent): boolean;
 begin
-  AEvent.StopPropagation;
-  MouseLeave();
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    MouseLeave();
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleMouseMove(AEvent: TJSMouseEvent): boolean;
@@ -1490,13 +1520,17 @@ var
   VShift: TShiftState;
   X, Y: NativeInt;
 begin
-  VOffSets := OffSets(FHandleElement);
-  VShift := ExtractShiftState(AEvent);
-  X := Trunc(AEvent.ClientX - VOffSets.Left);
-  Y := Trunc(AEvent.ClientY - VOffSets.Top);
-  AEvent.StopPropagation;
-  MouseMove(VShift, X, Y);
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    VOffSets := OffSets(FHandleElement);
+    VShift := ExtractShiftState(AEvent);
+    X := Trunc(AEvent.ClientX - VOffSets.Left);
+    Y := Trunc(AEvent.ClientY - VOffSets.Top);
+    MouseMove(VShift, X, Y);
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleMouseUp(AEvent: TJSMouseEvent): boolean;
@@ -1506,14 +1540,18 @@ var
   VShift: TShiftState;
   X, Y: NativeInt;
 begin
-  VButton := ExtractMouseButton(AEvent);
-  VOffSets := OffSets(FHandleElement);
-  VShift := ExtractShiftState(AEvent);
-  X := Trunc(AEvent.ClientX - VOffSets.Left);
-  Y := Trunc(AEvent.ClientY - VOffSets.Top);
-  AEvent.StopPropagation;
-  MouseUp(VButton, VShift, X, Y);
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    VButton := ExtractMouseButton(AEvent);
+    VOffSets := OffSets(FHandleElement);
+    VShift := ExtractShiftState(AEvent);
+    X := Trunc(AEvent.ClientX - VOffSets.Left);
+    Y := Trunc(AEvent.ClientY - VOffSets.Top);
+    MouseUp(VButton, VShift, X, Y);
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleMouseWheel(AEvent: TJSWheelEvent): boolean;
@@ -1524,14 +1562,18 @@ var
   VShift: TShiftState;
   VOffSets: TRect;
 begin
-  VDelta := Trunc(-AEvent.deltaY);
-  VHandled := False;
-  VOffSets := OffSets(FHandleElement);
-  VMousePos := Point(VOffSets.Left, VOffSets.Top);
-  VShift := ExtractShiftState(AEvent);
-  AEvent.StopPropagation;
-  MouseWeel(VShift, VDelta, VMousePos, VHandled);
-  Result := True;
+  try
+    FJSEvent := AEvent;
+    VDelta := Trunc(-AEvent.deltaY);
+    VHandled := False;
+    VOffSets := OffSets(FHandleElement);
+    VMousePos := Point(VOffSets.Left, VOffSets.Top);
+    VShift := ExtractShiftState(AEvent);
+    MouseWheel(VShift, VDelta, VMousePos, VHandled);
+    Result := True;
+  finally
+    FJSEvent := nil;
+  end;
 end;
 
 function TControl.HandleResize(AEvent: TJSEvent): boolean;
