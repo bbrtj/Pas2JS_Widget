@@ -2152,17 +2152,15 @@ begin
         tlCenter: Style.SetProperty('vertical-align', 'middle');
         tlTop: Style.SetProperty('vertical-align', 'top');
       end;
-      /// WordWrap
+      /// Allow for whitespace and wrapping
       if (FWordWrap) then
       begin
-        Style.SetProperty('word-wrap', 'break-word');
+        Style.SetProperty('white-space', 'pre-wrap');
       end
       else
       begin
-        Style.removeProperty('word-wrap');
+        Style.SetProperty('white-space', 'pre');
       end;
-      /// Allow for whitespace
-      Style.SetProperty('white-space', 'pre');
       /// Scroll
       Style.SetProperty('overflow', 'hidden');
       /// Specifies how overflowed content
