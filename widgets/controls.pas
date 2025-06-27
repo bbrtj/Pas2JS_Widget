@@ -2422,6 +2422,7 @@ begin
   if (Assigned(FOnKeyDown)) then
   begin
     FOnKeyDown(Self, Key, Shift);
+    if JSEvent <> nil then JSEvent.StopPropagation;
   end;
 end;
 
@@ -2430,6 +2431,7 @@ begin
   if (Assigned(FOnKeyPress)) then
   begin
     FOnKeyPress(Self, Key);
+    if JSEvent <> nil then JSEvent.StopPropagation;
   end;
 end;
 
@@ -2438,6 +2440,7 @@ begin
   if (Assigned(FOnKeyUp)) then
   begin
     FOnKeyUp(Self, Key, Shift);
+    if JSEvent <> nil then JSEvent.StopPropagation;
   end;
 end;
 
@@ -2475,68 +2478,72 @@ var
   VParent: TControl;
   VShift: TShiftState;
 begin
-  /// Let each parent form with keypreview handle the key
-  VParent := FParent;
-  while (Assigned(VParent)) do
-  begin
-    if (VParent is TCustomForm) then
+  try
+    JSEvent := AEvent;
+    /// Let each parent form with keypreview handle the key
+    VParent := FParent;
+    while (Assigned(VParent)) do
     begin
-      VForm := TCustomForm(VParent);
-      if (VForm.KeyPreview) and (VForm.HandleKeyDown(AEvent)) then
+      if (VParent is TCustomForm) then
       begin
-        Result := True;
-        Exit;
-      end;
-    end;
-    VParent := VParent.Parent;
-  end;
-  /// Handle the key
-  VKey := ExtractKeyCode(AEvent);
-  VShift := ExtractShiftState(AEvent);
-  AEvent.StopPropagation;
-  KeyDown(VKey, VShift);
-  if (VKey = 0) then
-  begin
-    /// Consumed
-    AEvent.PreventDefault;
-  end
-  else
-  begin
-    case VKey of
-      { TODO: Use the navigation keys to change control. }
-      /// Tab
-      9:
-      begin
-        if (Assigned(FParent)) then
+        VForm := TCustomForm(VParent);
+        if (VForm.KeyPreview) and (VForm.HandleKeyDown(AEvent)) then
         begin
-          if (ssShift in VShift) then
+          Result := True;
+          Exit;
+        end;
+      end;
+      VParent := VParent.Parent;
+    end;
+    /// Handle the key
+    VKey := ExtractKeyCode(AEvent);
+    VShift := ExtractShiftState(AEvent);
+    KeyDown(VKey, VShift);
+    if (VKey = 0) then
+    begin
+      /// Consumed
+      AEvent.PreventDefault;
+    end
+    else
+    begin
+      case VKey of
+        { TODO: Use the navigation keys to change control. }
+        /// Tab
+        9:
+        begin
+          if (Assigned(FParent)) then
           begin
-            VControl := FParent.FindFocusControl(Self, fsdPrev);
-            if (not Assigned(VControl)) then
+            if (ssShift in VShift) then
             begin
-              VControl := FParent.FindFocusControl(nil, fsdLast);
-            end;
-          end
-          else
-          begin
-            VControl := FParent.FindFocusControl(Self, fsdNext);
-            if (not Assigned(VControl)) then
+              VControl := FParent.FindFocusControl(Self, fsdPrev);
+              if (not Assigned(VControl)) then
+              begin
+                VControl := FParent.FindFocusControl(nil, fsdLast);
+              end;
+            end
+            else
             begin
-              VControl := FParent.FindFocusControl(nil, fsdFirst);
+              VControl := FParent.FindFocusControl(Self, fsdNext);
+              if (not Assigned(VControl)) then
+              begin
+                VControl := FParent.FindFocusControl(nil, fsdFirst);
+              end;
             end;
+            /// backward/forward control
+            if (Assigned(VControl)) and (VControl.CanSetFocus) then
+            begin
+              VControl.SetFocus;
+            end;
+            /// Consumed
+            AEvent.PreventDefault;
           end;
-          /// backward/forward control
-          if (Assigned(VControl)) and (VControl.CanSetFocus) then
-          begin
-            VControl.SetFocus;
-          end;
-          /// Consumed
-          AEvent.PreventDefault;
         end;
       end;
     end;
+    Result := True;
+  except
+    JSEvent := nil;
   end;
-  Result := True;
 end;
 
 function TWinControl.HandleKeyUp(AEvent: TJSKeyBoardEvent): boolean;
@@ -2546,32 +2553,36 @@ var
   VParent: TControl;
   VShift: TShiftState;
 begin
-  /// Let each parent form with keypreview handle the key
-  VParent := FParent;
-  while (Assigned(VParent)) do
-  begin
-    if (VParent is TCustomForm) then
+  try
+    JSEvent := AEvent;
+    /// Let each parent form with keypreview handle the key
+    VParent := FParent;
+    while (Assigned(VParent)) do
     begin
-      VForm := TCustomForm(VParent);
-      if (VForm.KeyPreview) and (VForm.HandleKeyUp(AEvent)) then
+      if (VParent is TCustomForm) then
       begin
-        Result := True;
-        Exit;
+        VForm := TCustomForm(VParent);
+        if (VForm.KeyPreview) and (VForm.HandleKeyUp(AEvent)) then
+        begin
+          Result := True;
+          Exit;
+        end;
       end;
+      VParent := VParent.Parent;
     end;
-    VParent := VParent.Parent;
+    /// Handle the key
+    VKey := ExtractKeyCode(AEvent);
+    VShift := ExtractShiftState(AEvent);
+    KeyUp(VKey, VShift);
+    if (VKey = 0) then
+    begin
+      /// Consumed
+      AEvent.PreventDefault;
+    end;
+    Result := True;
+  except
+    JSEvent := nil;
   end;
-  /// Handle the key
-  VKey := ExtractKeyCode(AEvent);
-  VShift := ExtractShiftState(AEvent);
-  AEvent.StopPropagation;
-  KeyUp(VKey, VShift);
-  if (VKey = 0) then
-  begin
-    /// Consumed
-    AEvent.PreventDefault;
-  end;
-  Result := True;
 end;
 
 function TWinControl.HandleKeyPress(AEvent: TJSKeyBoardEvent): boolean;
@@ -2580,38 +2591,42 @@ var
   VKey: char;
   VParent: TControl;
 begin
-  /// Let each parent form with keypreview handle the key
-  VParent := FParent;
-  while (Assigned(VParent)) do
-  begin
-    if (VParent is TCustomForm) then
+  try
+    JSEvent := AEvent;
+    /// Let each parent form with keypreview handle the key
+    VParent := FParent;
+    while (Assigned(VParent)) do
     begin
-      VForm := TCustomForm(VParent);
-      if (VForm.KeyPreview) and (VForm.HandleKeyPress(AEvent)) then
+      if (VParent is TCustomForm) then
       begin
-        Result := True;
-        Exit;
+        VForm := TCustomForm(VParent);
+        if (VForm.KeyPreview) and (VForm.HandleKeyPress(AEvent)) then
+        begin
+          Result := True;
+          Exit;
+        end;
       end;
+      VParent := VParent.Parent;
     end;
-    VParent := VParent.Parent;
-  end;
-  AEvent.StopPropagation;
-  VKey := ExtractKeyChar(AEvent);
-  if (VKey = #0) then
-  begin
-    /// Consumed
-    AEvent.PreventDefault;
-  end
-  else
-  begin
-    KeyPress(VKey);
+    VKey := ExtractKeyChar(AEvent);
     if (VKey = #0) then
     begin
       /// Consumed
       AEvent.PreventDefault;
+    end
+    else
+    begin
+      KeyPress(VKey);
+      if (VKey = #0) then
+      begin
+        /// Consumed
+        AEvent.PreventDefault;
+      end;
     end;
+    Result := True;
+  except
+    JSEvent := nil;
   end;
-  Result := True;
 end;
 
 procedure TWinControl.RegisterHandleEvents;
